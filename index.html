@@ -461,11 +461,11 @@ function R(){
     g[c].forEach(b=>{
       const isRead=readState[b.i];
       h+='<div class="cd'+(isRead?' read':'')+'" data-id="'+b.i+'">';
-      h+='<div class="ck'+(isRead?' done':'')+'" onclick="toggleRead(''+b.i+'')" title="Mark as '+(isRead?'unread':'read')+'"></div>';
+      h+='<div class="ck'+(isRead?' done':'')+'" data-read="'+b.i+'" title="Mark as '+(isRead?'unread':'read')+'"></div>';
       h+='<div class="cd-body"><a class="cd-link" href="'+b.l+'" target="_blank" rel="noopener">';
       h+='<div class="ct2"><span class="au">'+b.a+' <span>'+b.h+'</span></span>';
       h+='<span><span class="tg '+b.cc+'">'+CN[b.cc].split(" ").pop()+'</span>';
-      h+='<button class="retag" onclick="event.preventDefault();event.stopPropagation();openModal(''+b.i+'')">✏️</button></span></div>';
+      h+='<button class="retag" data-retag="'+b.i+'">✏️</button></span></div>';
       h+='<div class="hl">'+b.s+'</div>';
       h+='<div class="dt">'+b.d+'</div>';
       h+='</a></div></div>';
@@ -486,7 +486,7 @@ function openModal(id){
   const b=B.find(x=>x.i===id);
   const cur=getCat(b);
   const el=document.getElementById("modal-opts");
-  el.innerHTML=CATS.map(c=>'<div class="opt'+(c===cur?' sel':'')+'" onclick="reTag(''+c+'')">'+CN[c]+'</div>').join("");
+  el.innerHTML=CATS.map(c=>'<div class="opt'+(c===cur?' sel':'')+'" data-cat="'+c+'">'+CN[c]+'</div>').join("");
   document.getElementById("modal").classList.add("show");
 }
 
@@ -525,6 +525,20 @@ document.getElementById("sort").addEventListener("change",e=>{sortBy=e.target.va
 
 // Search
 qi.addEventListener("input",R);
+
+// Event delegation for read toggles and retag buttons
+cn.addEventListener("click",e=>{
+  const ck=e.target.closest("[data-read]");
+  if(ck){e.preventDefault();e.stopPropagation();toggleRead(ck.dataset.read);return;}
+  const rt=e.target.closest("[data-retag]");
+  if(rt){e.preventDefault();e.stopPropagation();openModal(rt.dataset.retag);return;}
+});
+
+// Event delegation for modal category selection
+document.getElementById("modal-opts").addEventListener("click",e=>{
+  const opt=e.target.closest("[data-cat]");
+  if(opt) reTag(opt.dataset.cat);
+});
 
 // Close modal on background click
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.classList.contains("modal"))closeModal();});
